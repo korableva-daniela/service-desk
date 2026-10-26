@@ -44,7 +44,7 @@
 </div>
 
 <script>
-// ВАЖНО: Замените URL на ссылки ваших функций!
+
 const GET_ALL_URL = 'https://functions.yandexcloud.net/d4encghgeriphl6r1pe4';
 const UPDATE_URL = 'https://functions.yandexcloud.net/d4e0ctdp66rgbkfn3nmb';
 
@@ -67,35 +67,52 @@ function renderTickets(tickets) {
   }
 
   tbody.innerHTML = tickets.map(t => `
-    <tr>
+    <tr id="row-${t.ticket_id}">
       <td><code>${t.ticket_id}</code></td>
       <td>${t.subject}</td>
       <td>${t.category}</td>
       <td>${t.urgency}</td>
       <td>${t.assignee}</td>
-      <td><span class="badge ${statusClass(t.status)}">${t.status}</span></td>
+      <td><span class="badge ${statusClass(t.status)}" id="badge-${t.ticket_id}">${t.status}</span></td>
       <td>
-        <select class="form-select form-select-sm" onchange="updateStatus('${t.ticket_id}', this.value)">
-          <option value="" disabled selected>Изменить...</option>
-          <option value="в работе">В работу</option>
-          <option value="на проверке">На проверку</option>
-          <option value="закрыта">Закрыть</option>
-        </select>
+        <div class="d-flex gap-2">
+          <select class="form-select form-select-sm" id="select-${t.ticket_id}">
+            <option value="" disabled selected>Выберите...</option>
+            <option value="новая">Новая</option>
+            <option value="в работе">В работе</option>
+            <option value="на проверке">На проверке</option>
+            <option value="закрыта">Закрыта</option>
+            <option value="эскалирована">Эскалирована</option>
+          </select>
+          <button class="btn btn-sm btn-primary" onclick="saveStatus('${t.ticket_id}')">Сохранить</button>
+        </div>
       </td>
     </tr>
   `).join('');
 }
 
-async function updateStatus(ticketId, newStatus) {
-  if (!newStatus) return;
+async function saveStatus(ticketId) {
+  const select = document.getElementById(`select-${ticketId}`);
+  const newStatus = select.value;
+
+  if (!newStatus) {
+    alert('Выберите новый статус');
+    return;
+  }
+
   try {
     const response = await fetch(UPDATE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ticket_id: ticketId, status: newStatus })
     });
+
     if (response.ok) {
-      loadTickets(); // Перезагружаем таблицу
+      // Обновляем бейдж без перезагрузки всей таблицы
+      const badge = document.getElementById(`badge-${ticketId}`);
+      badge.textContent = newStatus;
+      badge.className = 'badge ' + statusClass(newStatus);
+      select.value = ''; // Сбрасываем выбор
     } else {
       alert('Ошибка обновления');
     }
@@ -116,6 +133,8 @@ function statusClass(status) {
     default: return 'bg-secondary';
   }
 }
+
+document.addEventListener('DOMContentLoaded', loadTickets);
 
 // Загружаем данные при открытии страницы
 document.addEventListener('DOMContentLoaded', loadTickets);
