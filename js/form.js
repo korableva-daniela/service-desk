@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Отправка...';
 
-    // ВАЖНО: замените ссылку на вашу реальную Ссылку для вызова из Yandex Cloud!
+   
     fetch('https://functions.yandexcloud.net/d4ekiprsrpeutdlbaqmt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
