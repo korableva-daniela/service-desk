@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     notFound.classList.add('d-none');
 
     // Запрос к Cloud Function для получения статуса
-    // ВАЖНО: замените URL на Ссылку для вызова второй функции!
+   
     fetch(`https://functions.yandexcloud.net/d4encghgeriphl6r1pe4?id=${encodeURIComponent(id)}`)
       .then(response => {
         if (response.status === 404) {
